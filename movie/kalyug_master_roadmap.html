@@ -1,0 +1,439 @@
+
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+.wrap{padding:16px 0;font-family:var(--font-sans)}
+.film-title{font-size:26px;font-weight:500;color:var(--color-text-primary);letter-spacing:3px;text-align:center;padding:8px 0 2px}
+.film-sub{font-size:12px;color:var(--color-text-tertiary);text-align:center;letter-spacing:1px;margin-bottom:20px}
+.tab-bar{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:16px}
+.tab{font-size:12px;padding:5px 14px;border-radius:20px;border:1px solid var(--color-border-secondary);background:var(--color-background-secondary);color:var(--color-text-secondary);cursor:pointer;font-weight:500;transition:all .15s}
+.tab.active{background:var(--color-text-primary);color:var(--color-background-primary);border-color:var(--color-text-primary)}
+.panel{display:none}.panel.active{display:block}
+
+.char-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:10px;margin-bottom:12px}
+.char-card{border-radius:var(--border-radius-lg);padding:11px 13px;cursor:pointer;border:1px solid transparent;transition:opacity .15s}
+.char-card:hover{opacity:.82}
+.char-type{font-size:10px;font-weight:500;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:4px}
+.char-name{font-size:16px;font-weight:500;margin-bottom:3px}
+.char-sin{font-size:11px;font-weight:500;margin-bottom:3px}
+.char-desc{font-size:11px;opacity:.8;line-height:1.4}
+.neg{background:#FCEBEB;border-color:#F09595;color:#791F1F}.neg .char-type{color:#A32D2D}
+.com{background:#FAEEDA;border-color:#FAC775;color:#412402}.com .char-type{color:#633806}
+.pos{background:#E1F5EE;border-color:#5DCAA5;color:#04342C}.pos .char-type{color:#0F6E56}
+.agt{background:#E6F1FB;border-color:#85B7EB;color:#042C53}.agt .char-type{color:#185FA5}
+.snt{background:#EEEDFE;border-color:#AFA9EC;color:#26215C}.snt .char-type{color:#534AB7}
+.div{background:#FBEAF0;border-color:#ED93B1;color:#4B1528}.div .char-type{color:#993556}
+@media(prefers-color-scheme:dark){
+.neg{background:#501313;border-color:#A32D2D;color:#F7C1C1}.neg .char-type{color:#F09595}
+.com{background:#412402;border-color:#BA7517;color:#FAC775}.com .char-type{color:#EF9F27}
+.pos{background:#04342C;border-color:#1D9E75;color:#9FE1CB}.pos .char-type{color:#5DCAA5}
+.agt{background:#042C53;border-color:#378ADD;color:#B5D4F4}.agt .char-type{color:#85B7EB}
+.snt{background:#26215C;border-color:#7F77DD;color:#CECBF6}.snt .char-type{color:#AFA9EC}
+.div{background:#4B1528;border-color:#D4537E;color:#F4C0D1}.div .char-type{color:#ED93B1}
+}
+.section-lbl{font-size:10px;font-weight:500;letter-spacing:2px;text-transform:uppercase;color:var(--color-text-tertiary);margin:14px 0 8px}
+
+.sin-table{width:100%;border-collapse:collapse;font-size:12px}
+.sin-table th{text-align:left;padding:6px 10px;font-size:10px;letter-spacing:1px;text-transform:uppercase;color:var(--color-text-tertiary);border-bottom:1px solid var(--color-border-tertiary)}
+.sin-table td{padding:7px 10px;border-bottom:1px solid var(--color-border-tertiary);vertical-align:top;color:var(--color-text-primary)}
+.sin-table tr:last-child td{border-bottom:none}
+.sin-pill{font-size:10px;font-weight:500;padding:2px 8px;border-radius:20px;white-space:nowrap;display:inline-block}
+.sp-red{background:#FCEBEB;color:#A32D2D}
+.sp-amb{background:#FAEEDA;color:#633806}
+.sp-pur{background:#EEEDFE;color:#3C3489}
+.sp-teal{background:#E1F5EE;color:#0F6E56}
+.sp-cor{background:#FAECE7;color:#712B13}
+.sp-pink{background:#FBEAF0;color:#72243E}
+@media(prefers-color-scheme:dark){
+.sp-red{background:#501313;color:#F7C1C1}
+.sp-amb{background:#412402;color:#FAC775}
+.sp-pur{background:#26215C;color:#CECBF6}
+.sp-teal{background:#04342C;color:#9FE1CB}
+.sp-cor{background:#4A1B0C;color:#F0997B}
+.sp-pink{background:#4B1528;color:#F4C0D1}
+}
+
+.scene-flow{display:flex;flex-direction:column;gap:0}
+.s-row{display:flex;gap:0;align-items:stretch}
+.s-left{width:44px;display:flex;flex-direction:column;align-items:center;flex-shrink:0}
+.s-dot{width:14px;height:14px;border-radius:50%;margin-top:12px;flex-shrink:0}
+.s-line{width:2px;flex:1;background:var(--color-border-tertiary);margin:2px auto 0}
+.s-body{flex:1;padding:0 0 0 10px}
+.s-card{background:var(--color-background-secondary);border:1px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);padding:10px 13px;margin:4px 0;cursor:pointer;transition:border-color .15s}
+.s-card:hover{border-color:var(--color-border-primary)}
+.s-head{display:flex;justify-content:space-between;align-items:flex-start;gap:8px}
+.s-title{font-size:13px;font-weight:500;color:var(--color-text-primary);flex:1}
+.s-time{font-size:10px;color:var(--color-text-tertiary);white-space:nowrap;padding-top:2px}
+.s-sub{font-size:11px;color:var(--color-text-secondary);margin-top:3px;line-height:1.4}
+.s-tags{display:flex;flex-wrap:wrap;gap:4px;margin-top:6px}
+.tag{font-size:10px;font-weight:500;padding:1px 7px;border-radius:20px}
+.ta{background:#FCEBEB;color:#A32D2D}
+.tc{background:#FAEEDA;color:#633806}
+.tt{background:#EEEDFE;color:#3C3489}
+.th2{background:#2C2C2A;color:#D3D1C7}
+.tm{background:#E6F1FB;color:#185FA5}
+.te{background:#E1F5EE;color:#0F6E56}
+.td{background:#FBEAF0;color:#72243E}
+@media(prefers-color-scheme:dark){
+.ta{background:#501313;color:#F7C1C1}
+.tc{background:#412402;color:#FAC775}
+.tt{background:#26215C;color:#CECBF6}
+.th2{background:#444441;color:#D3D1C7}
+.tm{background:#042C53;color:#B5D4F4}
+.te{background:#04342C;color:#9FE1CB}
+.td{background:#4B1528;color:#F4C0D1}
+}
+.detail-box{display:none;font-size:12px;color:var(--color-text-secondary);line-height:1.6;padding:8px 13px 10px;border-top:1px solid var(--color-border-tertiary);margin-top:4px}
+.detail-box.open{display:block}
+.twist-badge{display:inline-block;font-size:10px;font-weight:500;padding:1px 8px;border-radius:20px;background:#26215C;color:#CECBF6;margin-bottom:6px}
+@media(prefers-color-scheme:dark){.twist-badge{background:#AFA9EC;color:#26215C}}
+.interval-bar{background:#EEEDFE;border:1.5px solid #7F77DD;border-radius:var(--border-radius-lg);padding:9px 14px;text-align:center;margin:8px 0;font-size:12px;font-weight:500;color:#3C3489;cursor:pointer}
+@media(prefers-color-scheme:dark){.interval-bar{background:#26215C;border-color:#7F77DD;color:#AFA9EC}}
+.end-bar{background:#FBEAF0;border:1.5px solid #D4537E;border-radius:var(--border-radius-lg);padding:9px 14px;text-align:center;margin:8px 0;font-size:12px;font-weight:500;color:#72243E}
+@media(prefers-color-scheme:dark){.end-bar{background:#4B1528;border-color:#D4537E;color:#F4C0D1}}
+
+.conn-grid{display:flex;flex-direction:column;gap:10px}
+.conn-card{background:var(--color-background-secondary);border:1px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);padding:11px 14px}
+.conn-title{font-size:13px;font-weight:500;color:var(--color-text-primary);margin-bottom:4px}
+.conn-desc{font-size:12px;color:var(--color-text-secondary);line-height:1.5}
+.conn-when{font-size:10px;color:var(--color-text-tertiary);margin-top:5px;font-style:italic}
+.write-btn{font-size:11px;padding:4px 12px;border-radius:20px;border:1px solid var(--color-border-secondary);background:var(--color-background-primary);color:var(--color-text-secondary);cursor:pointer;margin-top:6px;transition:border-color .15s}
+.write-btn:hover{border-color:var(--color-border-primary)}
+</style>
+
+<div class="wrap">
+<div class="film-title">KALYUG</div>
+<div class="film-sub">Part 1 · Complete Master Roadmap · Click anything to explore</div>
+
+<div class="tab-bar">
+  <div class="tab active" onclick="showTab('chars')">Characters</div>
+  <div class="tab" onclick="showTab('sins')">Sins Map</div>
+  <div class="tab" onclick="showTab('scenes')">Scene Flow</div>
+  <div class="tab" onclick="showTab('connect')">Hidden Connections</div>
+</div>
+
+<div id="chars" class="panel active">
+  <div class="section-lbl">Negative — 4 main villains</div>
+  <div class="char-grid">
+    <div class="char-card neg" onclick="sendPrompt('Write the full introduction scene of Vikram in KALYUG — his world, his sins, his ego')">
+      <div class="char-type">Main Villain</div>
+      <div class="char-name">विक्रम</div>
+      <div class="char-sin">काम · क्रोध · लोभ · ईर्ष्या · अहंकार</div>
+      <div class="char-desc">All sins combined. Charming outside, hollow inside. The one who never changes. Part 2 takes him to naraka.</div>
+    </div>
+    <div class="char-card neg" onclick="sendPrompt('Write the introduction scene of Ranveer in KALYUG — his ego, greed and how he treats people')">
+      <div class="char-type">Ego + Lobh</div>
+      <div class="char-name">रणवीर</div>
+      <div class="char-sin">लोभ · अहंकार · माया</div>
+      <div class="char-desc">Wealthy businessman. Collects things and people. Cannot value what he already has. Always wants more.</div>
+    </div>
+    <div class="char-card neg" onclick="sendPrompt('Write the introduction scene of Suraj in KALYUG — his lust and wrong gaze problem')">
+      <div class="char-type">Kaam + Wrong Gaze</div>
+      <div class="char-name">सूरज</div>
+      <div class="char-sin">काम · आलस · प्रमाद</div>
+      <div class="char-desc">Wrong intentions. Lazy to fix himself. Justifies every sin. Never takes blame. Knows it is wrong — smiles anyway.</div>
+    </div>
+    <div class="char-card neg" onclick="sendPrompt('Write the introduction scene of Karan in KALYUG — a person who knows wrong from right but chooses wrong anyway')">
+      <div class="char-type">Conscious Sinner</div>
+      <div class="char-name">करण</div>
+      <div class="char-sin">झूठ · चोरी · मोह · अपमान</div>
+      <div class="char-desc">Knows it is wrong. Does it anyway. Lies for convenience. Most relatable — and most dangerous to viewers' conscience.</div>
+    </div>
+  </div>
+
+  <div class="section-lbl">Comedy — 3 positive hearts, wrong timing</div>
+  <div class="char-grid">
+    <div class="char-card com" onclick="sendPrompt('Give me 5 funny scenes for Nattu the comedy character in KALYUG who shows up everywhere at wrong time')">
+      <div class="char-type">Situation Comedy</div>
+      <div class="char-name">नट्टू</div>
+      <div class="char-desc">Shows up in wrong place at wrong time. Never understands what is happening around him. Accidentally exposes everyone's sins without meaning to.</div>
+    </div>
+    <div class="char-card com" onclick="sendPrompt('Give me 5 funny scenes for Bhola the comedy character in KALYUG who misunderstands everything serious')">
+      <div class="char-type">Misunderstands All</div>
+      <div class="char-name">भोला</div>
+      <div class="char-desc">Hears serious things, gives completely opposite advice. Heart is pure gold. Accidentally says the most profound truth while trying to say something stupid.</div>
+    </div>
+    <div class="char-card com" onclick="sendPrompt('Give me 5 funny scenes for Pandit Ghisu Ram the comedy pandit in KALYUG — confusing God and money')">
+      <div class="char-type">Confused Saint</div>
+      <div class="char-name">पंडित घीसूराम</div>
+      <div class="char-desc">Talks about God all day. Confused about God himself. Wants iPhone, thinks God sends billionaires to him as delivery. Most laughs come from him.</div>
+    </div>
+  </div>
+
+  <div class="section-lbl">Saints — the two spiritual pillars</div>
+  <div class="char-grid">
+    <div class="char-card snt" onclick="sendPrompt('Write the introduction of Sadhu Baba the good saint in KALYUG — simple, no ego, pure')">
+      <div class="char-type">Good Saint</div>
+      <div class="char-name">साधु बाबा</div>
+      <div class="char-desc">No ashram, no followers needed. Sits under a tree. Speaks simply. Nobody listens — until they are broken. His words cost nothing and mean everything.</div>
+    </div>
+    <div class="char-card snt" onclick="sendPrompt('Write the introduction of Swami Dharmanand the bad saint in KALYUG — spiritual ego and hypocrisy')">
+      <div class="char-type">Bad Saint — Hypocrite</div>
+      <div class="char-name">स्वामी धर्मानंद</div>
+      <div class="char-desc">Big ashram. Lakhs of followers. Talks of renunciation, lives in luxury. His sin = spiritual ego and using God for personal power. Introduced early — mirror of all negative characters.</div>
+    </div>
+  </div>
+
+  <div class="section-lbl">Divine + Positive</div>
+  <div class="char-grid">
+    <div class="char-card div" onclick="sendPrompt('Describe K the mysterious shadow child in KALYUG Part 1 — his presence, what he does, and what viewers will feel')">
+      <div class="char-type">Divine Presence — 16 yrs</div>
+      <div class="char-name">K</div>
+      <div class="char-desc">Only a shadow — no face, no eyes, no voice in Part 1. Present from Scene 1. Appears near every sinner. God sees everything — nothing is hidden. Part 2 reveals: K is divine.</div>
+    </div>
+    <div class="char-card pos" onclick="sendPrompt('Write the full character arc of Raju the common man in KALYUG — his kindness, his troubles, his connection to everything')">
+      <div class="char-type">Common Man</div>
+      <div class="char-name">राजू</div>
+      <div class="char-desc">Ordinary. Struggling. Helps a stranger (Cipher) even with his own life in ruins. His kindness is the invisible thread that holds the whole story together.</div>
+    </div>
+    <div class="char-card pos" onclick="sendPrompt('Describe the normal positive common people characters in KALYUG who show what right looks like')">
+      <div class="char-type">Common People</div>
+      <div class="char-name">2–3 साधारण लोग</div>
+      <div class="char-desc">No names needed at first. They do the right thing quietly — help an elder, refuse to lie, return what is not theirs. The contrast that makes viewers feel.</div>
+    </div>
+  </div>
+
+  <div class="section-lbl">Agent / Thriller Side</div>
+  <div class="char-grid">
+    <div class="char-card agt" onclick="sendPrompt('Write the full Robin Hood agent character in KALYUG — his personality, his methods, his comedy moments')">
+      <div class="char-type">Indian Agent</div>
+      <div class="char-name">Robin Hood</div>
+      <div class="char-desc">Field operative. Casual. Smart. Underestimated. Has dry humor. The thriller world's connection to the spiritual world — he does not know it yet.</div>
+    </div>
+    <div class="char-card agt" onclick="sendPrompt('Describe Agent R in KALYUG — the mysterious intelligence chief whose face is never shown in Part 1')">
+      <div class="char-type">Intelligence Chief</div>
+      <div class="char-name">Agent R</div>
+      <div class="char-desc">Face never shown in Part 1. Voice only. Connected to everyone — but how? The biggest mystery of Part 1 ending.</div>
+    </div>
+    <div class="char-card agt" onclick="sendPrompt('Write Cipher the international criminal in KALYUG — who is he really and what is his true identity')">
+      <div class="char-type">International Criminal</div>
+      <div class="char-name">Cipher</div>
+      <div class="char-desc">Wanted in 7 countries. But what did he actually do? His true identity is the Part 1 closing mystery. Not the real villain — possibly the most tragic character.</div>
+    </div>
+  </div>
+</div>
+
+<div id="sins" class="panel">
+  <div class="section-lbl">All sins mapped to characters</div>
+  <table class="sin-table">
+    <thead><tr><th>Sin (Hindi)</th><th>Meaning</th><th>Character</th><th>How it shows</th></tr></thead>
+    <tbody>
+      <tr><td><span class="sin-pill sp-red">काम</span></td><td>Lust</td><td>सूरज</td><td>Wrong gaze, wrong intentions, justifies everything</td></tr>
+      <tr><td><span class="sin-pill sp-red">क्रोध</span></td><td>Anger</td><td>विक्रम</td><td>Explodes on weak people, calm with powerful — coward's anger</td></tr>
+      <tr><td><span class="sin-pill sp-amb">लोभ</span></td><td>Greed</td><td>रणवीर</td><td>Takes credit, hoards, cannot feel satisfied with anything</td></tr>
+      <tr><td><span class="sin-pill sp-amb">मोह</span></td><td>Attachment</td><td>करण</td><td>Cannot let go of comfort, lies to protect himself, steals small things</td></tr>
+      <tr><td><span class="sin-pill sp-pur">माया</span></td><td>Illusion of world</td><td>रणवीर + विक्रम</td><td>Believe money and status are permanent — the world is real to them</td></tr>
+      <tr><td><span class="sin-pill sp-pur">ईर्ष्या</span></td><td>Jealousy</td><td>विक्रम</td><td>Sees others succeed and burns inside — destroys what he cannot have</td></tr>
+      <tr><td><span class="sin-pill sp-cor">जलन</span></td><td>Burning envy</td><td>विक्रम + सूरज</td><td>Cannot celebrate others. Sees another's joy as their own loss</td></tr>
+      <tr><td><span class="sin-pill sp-red">झूठ बोलना</span></td><td>Lying</td><td>करण</td><td>Lies for convenience. Small lies become identity. Cannot stop.</td></tr>
+      <tr><td><span class="sin-pill sp-red">अपमान करना</span></td><td>Disrespect elders</td><td>विक्रम + रणवीर</td><td>Treat parents and elders as burden. Show off in front of them.</td></tr>
+      <tr><td><span class="sin-pill sp-amb">आलस</span></td><td>Laziness in goodness</td><td>करण</td><td>Knows the right thing — too lazy to do it. Watches wrong happen.</td></tr>
+      <tr><td><span class="sin-pill sp-pur">प्रमाद</span></td><td>Recklessness</td><td>सूरज</td><td>Acts without thinking of consequences. Lives only for now.</td></tr>
+      <tr><td><span class="sin-pill sp-cor">चोरी</span></td><td>Stealing</td><td>करण + रणवीर</td><td>Karan steals small things. Ranveer steals credit, ideas, time.</td></tr>
+      <tr><td><span class="sin-pill sp-teal">एक जोड़े से सब — कदर नहीं</span></td><td>No gratitude</td><td>All 4 villains</td><td>Given everything — family, health, money — value none of it</td></tr>
+      <tr><td><span class="sin-pill sp-pink">अहंकार</span></td><td>Ego / Spiritual pride</td><td>स्वामी धर्मानंद</td><td>Uses God's name for personal power. His ego wears saffron.</td></tr>
+      <tr><td><span class="sin-pill sp-teal">भगवान को पूछना — पर बदलना नहीं</span></td><td>Ask God, never change</td><td>All 4 villains</td><td>Visit temple, give donation, go back to same sins. Routine, not faith.</td></tr>
+    </tbody>
+  </table>
+  <div style="margin-top:12px;font-size:11px;color:var(--color-text-tertiary);font-style:italic">Click any scene in the Scene Flow tab to see which sins are shown in that scene.</div>
+</div>
+
+<div id="scenes" class="panel">
+  <div class="scene-flow" id="sceneFlow"></div>
+</div>
+
+<div id="connect" class="panel">
+  <div class="section-lbl">Hidden connections — revealed at specific moments</div>
+  <div class="conn-grid" id="connGrid"></div>
+</div>
+
+</div>
+
+<script>
+function showTab(id){
+  document.querySelectorAll('.tab').forEach((t,i)=>{t.classList.toggle('active',t.getAttribute('onclick').includes(id))});
+  document.querySelectorAll('.panel').forEach(p=>{p.classList.toggle('active',p.id===id)});
+}
+
+const tagMap={action:'ta',comedy:'tc',thriller:'tt',horror:'th2',mystery:'tm',emotional:'te',divine:'td'};
+function tags(arr){return arr.map(t=>`<span class="tag ${tagMap[t]||''}">${t}</span>`).join('')}
+
+const scenes=[
+  {title:'Opening — ब्रह्मांड और भगवान',time:'5 min',color:'#D4537E',
+   sub:'Universe. Planets. Earth. God speaks — not with anger. With deep sadness. K is seen as a shadow in the very first frame.',
+   twist:'K is in the FIRST frame — most viewers will not notice until they rewatch.',
+   detail:'God\'s voice: "मैंने इन्हें सब दिया था... देखते हैं इन्होंने क्या किया।" Camera descends from universe through clouds into a city at night. The city looks beautiful from above — lights, movement, life. Then the camera gets closer and we begin to see: a man shouting at his elderly father. A person lying on the street ignored by all. A child waiting outside a temple alone. God goes silent. K\'s shadow — tiny, barely visible — stands at the edge of one dark lane. Viewer will not catch it first time.',
+   tags:['divine','mystery'],
+   prompt:'Write the full opening scene of KALYUG — universe, God voice, descend to Earth, K first shadow'},
+
+  {title:'Scene 1 — Chase: Robin Hood vs Cipher',time:'10 min',color:'#E24B4A',
+   sub:'Foreign call. Robin Hood activated. Night chase. Cipher escapes wounded. Meets Raju. A legal notice falls from Raju\'s bag.',
+   twist:'Raju\'s legal notice says "Property Seized" — he is in deep trouble himself, yet helps a stranger.',
+   detail:'11:45 PM. Robin Hood gets IP location of Cipher. High speed chase through city. Spike trap punctures tyres but car runs 2 km on sparks. Cipher escapes into a building. He collides with Raju in a dark lane. Cipher has a bullet wound — cloth pressed on it. Raju sees blood. Cipher lies: "Gundas chasing me." Raju\'s bag drops — envelope: LEGAL NOTICE PROPERTY SEIZED. Raju quickly picks it up. Viewer saw it. Raju takes Cipher home. K\'s shadow appears at the end of the lane as they walk away.',
+   tags:['action','thriller','mystery'],
+   prompt:'Write Scene 1 of KALYUG — full chase with Robin Hood, Cipher, Raju meeting and the legal notice drop'},
+
+  {title:'Scene 2 — स्वामी धर्मानंद आते हैं',time:'8 min',color:'#7F77DD',
+   sub:'Bad saint introduced. Big ashram. Followers. Luxury. Talks of renunciation — lives the opposite. First glimpse of spiritual hypocrisy.',
+   twist:'Swami ji meets Vikram and calls him "a great devotee." The two recognize each other. Connection hinted — not explained.',
+   detail:'Morning. A grand ashram. Lakhs of devotees. Swami Dharmanand speaks about leaving the world — but sits on a golden throne. He gets a donation cheque from someone off-screen — we see the hand but not the face. Comedy: Pandit Ghisu Ram watches the live telecast of the ashram on TV and tells Bhola: "Yeh to mujhse bhi bada brand hai — main toh ek hi mandir chala raha hoon, yeh to franchise le chuka hai."',
+   tags:['thriller','comedy','divine'],
+   prompt:'Write Scene 2 of KALYUG — Swami Dharmanand introduction, his hypocrisy, the anonymous donation hand'},
+
+  {title:'Scene 3 — विक्रम की दुनिया',time:'10 min',color:'#E24B4A',
+   sub:'Main villain fully introduced. His home, his business, his treatment of parents, his contempt for the weak.',
+   twist:'He visits a temple at the end of the scene — and asks God for more. No guilt. Routine.',
+   detail:'Vikram is charming in public. At home he ignores his elderly parents — they wait for him at dinner. He comes home late. His father says one gentle thing. Vikram snaps. His father goes quiet. This happens every day. Normal. Then Vikram goes to temple, does the puja, gives money, asks: "Bhagwan — meri deal ho jaaye." He leaves feeling satisfied. K\'s shadow is visible behind the temple idol — for exactly 2 seconds.',
+   tags:['thriller','emotional','divine'],
+   prompt:'Write Scene 3 of KALYUG — Vikram at home with parents then at temple asking God for a business deal'},
+
+  {title:'Scene 4 — रणवीर और साधु बाबा',time:'9 min',color:'#888780',
+   sub:'Ranveer\'s greed shown. Good saint Sadhu Baba appears — nobody listens to him. Nattu shows up at wrong time.',
+   twist:'Sadhu Baba says one line to Ranveer. Ranveer laughs and walks away. That line will be the last thing he remembers in his punishment scene.',
+   detail:'Ranveer is in a business deal — he is stealing someone else\'s idea. He feels nothing. Outside the office, Sadhu Baba sits under a tree. Simple. No followers. He says to Ranveer as he passes: "Jitna liya usne — usse zyada khoya." Ranveer laughs. "Baba kya bakwas kar rahe ho." He walks away. Comedy: Nattu is trying to deliver a tiffin to the wrong floor — stumbles into Ranveer\'s boardroom mid-theft-of-idea. Everyone freezes. Nattu looks at the whiteboard: "Yeh mera sir ka idea lag raha hai — unhone yahi kuch sketch kiya tha." Ranveer\'s face drops. Nattu has no idea what he just revealed.',
+   tags:['thriller','comedy','emotional'],
+   prompt:'Write Scene 4 of KALYUG — Ranveer greed, Sadhu Baba\'s line, Nattu stumbling into the boardroom'},
+
+  {title:'Scene 5 — सूरज की दुनिया',time:'8 min',color:'#E24B4A',
+   sub:'Suraj\'s sin shown through daily behaviour. Bhola gives completely wrong advice. K seen outside a window.',
+   twist:'A common person quietly does the right thing — helps someone Suraj ignored. No fanfare. Just quietly. Viewer feels it.',
+   detail:'Suraj is in a social situation. His wrong gaze. His justifications. An elderly man drops something — Suraj watches, does nothing. A stranger picks it up. Suraj does not notice he just missed being human. Comedy: Bhola is trying to give Suraj advice about respect. He gets completely confused and ends up advising Suraj to stare at clouds for eye exercise. "Aankhon ko rest chahiye toh woh le." Suraj laughs. Bhola accidentally said something profound. K\'s shadow visible outside a window for 3 seconds.',
+   tags:['comedy','emotional','mystery'],
+   prompt:'Write Scene 5 of KALYUG — Suraj\'s world, Bhola\'s wrong advice, the common person doing right quietly'},
+
+  {title:'Scene 6 — करण की दुनिया',time:'8 min',color:'#D85A30',
+   sub:'The most relatable sinner. He sees wrong. He knows. He walks away. Nattu accidentally exposes a small theft.',
+   twist:'Karan speaks to his reflection for 10 seconds — and we see guilt. Real guilt. Then he shakes his head and goes back to his life.',
+   detail:'Karan needs to sign a document that is slightly wrong. He knows. He signs anyway — "it is small, what difference." A colleague needs help. Karan is free. He pretends to be busy. He finds a wallet. Takes the cash. Leaves the wallet. Tells himself: "Unhone dhundh liya hoga." Comedy: Nattu is in the office to fix something. He accidentally emails the entire company Karan\'s draft confession to himself — "Mujhe pata hai yeh sab galat hai lekin..." Everyone stares at their phones. Karan dies inside. Nattu: "Send ho gaya kya? Main toh draft mein rakhna chahta tha." K is seen in the corridor as Karan reads the email.',
+   tags:['comedy','thriller','emotional'],
+   prompt:'Write Scene 6 of KALYUG — Karan knowing wrong, Nattu emailing the confession draft, Karan seeing K in corridor'},
+
+  {title:'Scene 7 — सब की दुनिया — एक धागा',time:'6 min',color:'#378ADD',
+   sub:'All four negative characters cross paths briefly — without knowing they are connected. Viewer sees the thread. Characters do not.',
+   twist:'A common object (a photo, a document, a location) appears in all four worlds. Same object. Different contexts. One secret.',
+   detail:'A single location — an old building. All four negative characters have visited it or have connection to it. We see this through cross-cutting. None of them know the others were there. K\'s shadow appears on the wall of that building — holding still. God\'s voice — very briefly: "Paap akela nahi karta koi... saath hota hai."',
+   tags:['thriller','mystery'],
+   prompt:'Write Scene 7 of KALYUG — the invisible thread connecting all four villains through one location'},
+];
+
+const postScenes=[
+  {title:'— INTERVAL —',time:'',color:'#7F77DD',isInterval:true,
+   detail:'REVEAL: Raju is directly connected to Vikram — not a stranger. Cipher was investigating THIS connection. Robin Hood realises Cipher is not the criminal. Agent R is heard on phone — the voice is familiar to someone in the story. Audience cannot sit still.',
+   prompt:'Write the interval revelation scene of KALYUG — Raju and Vikram connection, Cipher\'s real purpose'},
+
+  {title:'Scene 8 — Comedy characters try to change the villains',time:'12 min',color:'#BA7517',
+   sub:'All three comedy characters attempt to bring all four villains back to right path. Each attempt fails — but for beautiful reasons.',
+   twist:'Third parties watching laugh at the comedy characters for trying. But after the laughter fades — viewer realises: the laughers are also us.',
+   detail:'Pandit Ghisu Ram visits each villain to speak truth — gets confused halfway through his own points and argues with himself. Bhola tries to give advice — gives completely wrong moral but the wrong moral accidentally points to the right thing. Nattu ends up in the wrong situation AGAIN — and his innocent presence forces each villain to confront one tiny truth for a moment. Then they push it away. Comedy: Pandit ji prepares a speech: "Insaan ka dharma hai..." Then forgets page 2. Improvises. Tells Vikram that his sins will follow him. Vikram: "Bilkul, Pandit ji, aap sahi keh rahe hain." Gives him 500 rupees. Pandit ji: (to God internally) "Prabhu... iska 500 rupees ka kya karein. Mere page 2 wale lecture ki toh keemat hi nahi rahi."',
+   tags:['comedy','emotional','thriller'],
+   prompt:'Write Scene 8 of KALYUG — all three comedy characters trying and failing to change the four villains'},
+
+  {title:'Scene 9 — K more visible. Horror begins.',time:'10 min',color:'#444441',
+   sub:'K appears near each villain. Not threatening — simply present. But things begin happening that cannot be explained.',
+   twist:'Each supernatural event is the EXACT SIN of that person coming back in a small way. Not punishment yet — just a mirror.',
+   detail:'Vikram goes to a meeting to take credit for someone\'s work. The document is gone — replaced by a handwritten note in his own handwriting: "Yeh mera nahi tha." He never wrote this. Ranveer\'s stolen idea is published by someone else first — anonymously. Suraj\'s own words about a person are played back to him from his own phone — he never recorded this. Karan finds the wallet he looted — returned to the owner, with Karan\'s own name as sender. He did not do this. K\'s shadow visible in each scene. God\'s hum — not voice — just a deep note. 3 seconds each.',
+   tags:['horror','mystery','divine'],
+   prompt:'Write Scene 9 of KALYUG — K more present, each villain\'s sin mirrored back supernaturally'},
+
+  {title:'Scene 10 — Sadhu Baba speaks. Someone listens.',time:'8 min',color:'#1D9E75',
+   sub:'Good saint finally reaches one villain. Ranveer. He almost changes. Almost.',
+   twist:'Ranveer cries — genuinely. Then his phone rings. Business call. He wipes his tears. Walks away. That almost-change is more painful than no change.',
+   detail:'Sadhu Baba is sitting in the same place as always. Ranveer passes — this time something pulls him. He sits. Baba says nothing for 2 minutes. Then: "Kya khoya tujhe yaad hai?" Ranveer is suddenly thinking of his father who he did not visit in 3 years. His eyes fill. Then his phone rings. His assistant: "Sir — the deal is closing now." Ranveer looks at Baba. Baba looks at him. Ranveer stands up. He almost says something. He walks away. K\'s shadow behind Baba — still.',
+   tags:['emotional','divine','thriller'],
+   prompt:'Write Scene 10 of KALYUG — Sadhu Baba and Ranveer — the almost-change, the phone call, walking away'},
+
+  {title:'Climax — Punishment. Three change. One does not.',time:'15 min',color:'#D4537E',
+   sub:'God\'s justice arrives quietly. Each punishment matches the sin. Ranveer, Suraj, Karan each face their moment and choose differently. Vikram refuses everything.',
+   twist:'K stands in full light — not shadow — for the first time. Speaks ONE line. Vikram laughs. K watches him go. That laugh is the most chilling moment of the film.',
+   detail:'Ranveer\'s moment: Everything he stole — credit, money, ideas — is now worthless. He is alone. Sadhu Baba\'s line comes back to him. He goes and returns something he once took. A small thing. Enough. Suraj\'s moment: He sees the consequence of wrong gaze — not through violence but through the quiet suffering of one person he passed. It hits him. He sits alone and cries for the first time. Karan\'s moment: Is given one chance — easy, costless — to do the right thing. For the first time he does it. Comedy: Pandit Ghisu Ram: "Prabhu — maine 40 minute ka lecture taiyaar kiya tha inka sudharne ke liye. Aur yeh khud hi sudhar gaye. Ab yeh 40 minute ka lecture kahan use karoon?" Bhola: "Mujhpe try kar lo." Vikram: K stands before him in FULL LIGHT. First time. K says one line — we hear it but it is very quiet. Vikram looks at him for a long second. Then laughs. "Tu kaun hai beta." Turns away. K watches. Says nothing more.',
+   tags:['emotional','horror','divine','thriller'],
+   prompt:'Write the climax of KALYUG Part 1 — three change, Vikram refuses, K in full light speaks one line'},
+
+  {title:'Ending — Part 2 का रास्ता',time:'8 min',color:'#534AB7',
+   sub:'Questions left open. Cipher\'s true identity hinted. Agent R\'s face almost shown. Vikram\'s shadow does not match his body.',
+   twist:'In the last frame: Vikram\'s shadow on the wall is in a different shape — like something is already attached to him. He cannot see it. We can.',
+   detail:'Robin Hood meets Cipher — now recovering at Raju\'s home. Cipher tells him his real mission. We hear half of it before the scene cuts. Agent R is on a phone call — for a split second we almost see his face. Cut. Vikram is shown in his normal life — untouched. Confident. Everything is fine for him. Then the camera slowly pulls back. His shadow on the wall — the shape is wrong. Something is with him. He does not know. God\'s final voice: "Maine dekha. Maine note kiya. Aur uska safar... abhi shuru hoga." Fade to black. Title: KALYUG Part 2.',
+   tags:['mystery','divine','thriller'],
+   prompt:'Write the ending scene of KALYUG Part 1 — Cipher\'s half-reveal, Agent R almost shown, Vikram\'s wrong shadow'},
+];
+
+function renderScenes(){
+  const flow=document.getElementById('sceneFlow');
+  const all=[...scenes,...postScenes];
+  all.forEach((s,i)=>{
+    if(s.isInterval){
+      const d=document.createElement('div');
+      d.innerHTML=`<div class="interval-bar" onclick="toggleInterval(this,'${encodeURIComponent(s.detail)}','${encodeURIComponent(s.prompt)}')">⚡ INTERVAL — Major Revelation — Click to see what breaks open</div><div class="detail-box" style="background:var(--color-background-secondary);border:1px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);padding:10px 13px;margin-top:-6px"></div>`;
+      flow.appendChild(d);
+      return;
+    }
+    const row=document.createElement('div');
+    row.className='s-row';
+    row.innerHTML=`
+      <div class="s-left">
+        <div class="s-dot" style="background:${s.color}"></div>
+        <div class="s-line"></div>
+      </div>
+      <div class="s-body">
+        <div class="s-card" onclick="toggleScene(this,'${encodeURIComponent(s.detail)}','${encodeURIComponent(s.twist||'')}','${encodeURIComponent(s.prompt)}')">
+          <div class="s-head">
+            <div class="s-title">${s.title}</div>
+            <div class="s-time">${s.time}</div>
+          </div>
+          <div class="s-sub">${s.sub}</div>
+          <div class="s-tags">${tags(s.tags)}</div>
+        </div>
+        <div class="detail-box"></div>
+      </div>`;
+    flow.appendChild(row);
+  });
+  const endBar=document.createElement('div');
+  endBar.innerHTML=`<div class="end-bar">Part 1 ends. Part 2 ka safar shuru hoga.</div>`;
+  flow.appendChild(endBar);
+}
+
+function toggleScene(card,enc,twistEnc,promptEnc){
+  const panel=card.nextElementSibling;
+  if(panel.classList.contains('open')){panel.classList.remove('open');return}
+  const twist=decodeURIComponent(twistEnc);
+  panel.innerHTML=(twist?`<div class="twist-badge">TWIST</div> <div style="margin-bottom:6px;font-weight:500;color:var(--color-text-primary);font-size:12px">${twist}</div>`:'')
+    +`<div style="margin-bottom:8px">${decodeURIComponent(enc)}</div>`
+    +`<button class="write-btn" onclick="sendPrompt('${decodeURIComponent(promptEnc).replace(/'/g,"\\'")}');event.stopPropagation()">Write this scene in Hindi</button>`;
+  panel.classList.add('open');
+}
+
+function toggleInterval(bar,enc,promptEnc){
+  const panel=bar.nextElementSibling;
+  if(panel.classList.contains('open')){panel.classList.remove('open');return}
+  panel.innerHTML=`<div class="twist-badge">MAJOR REVELATION</div><div style="margin-bottom:8px;font-size:12px;color:var(--color-text-secondary);line-height:1.6">${decodeURIComponent(enc)}</div>`
+    +`<button class="write-btn" onclick="sendPrompt('${decodeURIComponent(promptEnc).replace(/'/g,"\\'")}')">Write this scene in Hindi</button>`;
+  panel.classList.add('open');
+}
+
+const connections=[
+  {title:'राजू ↔ विक्रम',when:'Revealed at interval',
+   desc:'Raju is not a random common man. He is directly connected to Vikram\'s past. His property was seized because of a deal Vikram was involved in. He lost his home because of this man — and then helped a stranger the same night without knowing any connection. His kindness is the most painful irony of the film.'},
+  {title:'Cipher ↔ Agent R',when:'Hinted at Scene 1, partially revealed in ending',
+   desc:'Cipher is not a criminal. He was an agent — once. Something happened. He went underground. His mission in India is to find evidence of something connected to a larger network. Agent R knows this. Whether R is helping or hindering — that is the Part 2 question.'},
+  {title:'विक्रम ↔ स्वामी धर्मानंद',when:'Hinted in Scene 2, explained in climax',
+   desc:'Vikram donates to the swami\'s ashram. Not for God — for political and social cover. The swami gives him blessings in return. Both use God as a transaction. Neither believes. This partnership is exposed quietly — not loudly — in the climax.'},
+  {title:'K ↔ सभी negative characters',when:'From Scene 1 — always present',
+   desc:'K appears near every sinner. Not threatening. Not speaking. Just present. God sees everything — K is that seeing. In Part 1 this is mystery. In Part 2 it is revealed why K was always there and what it meant for each person.'},
+  {title:'साधु बाबा ↔ रणवीर की line',when:'Scene 4 line returns in Scene 10',
+   desc:'The one line Sadhu Baba says to Ranveer in Scene 4 — which Ranveer laughs at — comes back word for word in Scene 10 during Ranveer\'s breakdown. The same words. Different ears. That is the difference a broken heart makes.'},
+  {title:'पंडित घीसूराम ↔ भगवान की आवाज़',when:'Throughout — viewers notice in rewatch',
+   desc:'Every time Pandit Ghisu Ram says something accidentally profound — while trying to be funny — God\'s background score has a single quiet note. Viewer will only notice in rewatch. First time it reads as comedy. Second time it reads as God communicating through fools.'},
+];
+
+function renderConnections(){
+  const g=document.getElementById('connGrid');
+  connections.forEach(c=>{
+    const d=document.createElement('div');
+    d.className='conn-card';
+    d.innerHTML=`<div class="conn-title">${c.title}</div><div class="conn-desc">${c.desc}</div><div class="conn-when">${c.when}</div>`;
+    g.appendChild(d);
+  });
+}
+
+renderScenes();
+renderConnections();
+</script>
